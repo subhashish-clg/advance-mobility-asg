@@ -24,9 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useDeferredValue, useEffect, useState } from "react";
 import axios from "axios";
-import { Driver } from "@/hooks/useDrivers";
+import { Driver, DRIVERS_ENPOINT } from "@/hooks/useDrivers";
 import { Transfer } from "@/hooks/useTransfers";
-import { Vehicle } from "@/hooks/useVehicles";
+import { Vehicle, VEHICLES_ENDPOINT } from "@/hooks/useVehicles";
 
 const formSchema = z.object({
   vehicleNumber: z.string().min(5, {
@@ -72,7 +72,7 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
   const fetchVehicle = async () => {
     try {
       const results = await axios.get<Vehicle>(
-        `http://localhost:8000/vehicles/${watchVehicleNumber.toUpperCase()}`
+        VEHICLES_ENDPOINT + watchVehicleNumber.toUpperCase()
       );
       if (results.data && results.data.owner) {
         setVehicleDetails(results.data);
@@ -95,8 +95,8 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
     fetchVehicle();
   }, [deferred]);
 
-  // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  // Define a submit handler.
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (fromUser && toUser) {
       await props.onSumbit({
         ...values,
@@ -106,9 +106,9 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
     }
     setOpen(false);
     return form.reset();
-  }
+  };
 
-  async function mapFromDriver() {
+  const mapFromDriver = async () => {
     const id = form.getValues("fromDriverID");
 
     if ((fromUser && fromUser.name === id) || !id) {
@@ -116,9 +116,7 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
     }
 
     try {
-      const response = await axios.get<Driver>(
-        `http://localhost:8000/drivers/${id}`
-      );
+      const response = await axios.get<Driver>(VEHICLES_ENDPOINT + id);
 
       if (response.status === 200) {
         setFromUser(response.data);
@@ -133,9 +131,9 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
         message: "User does not exits. Please enter a valid ID.",
       });
     }
-  }
+  };
 
-  async function mapToDriver() {
+  const mapToDriver = async () => {
     const id = form.getValues("toDriverID");
 
     if ((toUser && toUser.name === id) || !id) {
@@ -143,9 +141,7 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
     }
 
     try {
-      const response = await axios.get<Driver>(
-        `http://localhost:8000/drivers/${id}`
-      );
+      const response = await axios.get<Driver>(DRIVERS_ENPOINT + id);
 
       if (response.status === 200) {
         setToUser(response.data);
@@ -160,7 +156,7 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
         message: "User does not exits. Please enter a valid ID.",
       });
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

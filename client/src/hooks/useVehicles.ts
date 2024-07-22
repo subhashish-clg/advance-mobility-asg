@@ -18,7 +18,8 @@ export interface CreateVehicle {
   owner?: string | undefined;
 }
 
-const VEHICLES_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_URL + "vehicles/";
+export const VEHICLES_ENDPOINT =
+  process.env.NEXT_PUBLIC_SERVER_URL + "vehicles/";
 
 export default function useVehicles() {
   const [state, setState] = useState<Vehicle[]>([] as Vehicle[]);

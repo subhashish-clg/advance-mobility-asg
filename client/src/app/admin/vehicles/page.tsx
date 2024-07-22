@@ -16,9 +16,10 @@ import VehicleDetailsForm from "@/components/VehicleDetailsForm";
 import { useMemo } from "react";
 import ActionContext from "@/components/ActionContext";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { LoaderCircle } from "lucide-react";
 
 export default function VehiclesPage() {
-  const { vehicles, methods } = useVehicles();
+  const { vehicles, isLoading, methods } = useVehicles();
 
   const columnsWithDelete = useMemo(() => {
     return [
@@ -71,11 +72,15 @@ export default function VehiclesPage() {
         />
       </CardHeader>
       <CardContent>
-        <DataTable
-          searchable="vehicleNumber"
-          columns={columnsWithDelete}
-          data={vehicles}
-        />
+        {isLoading ? (
+          <LoaderCircle className="mx-auto h-12 w-12 text-gray-500 transition-transform animate-spin" /> // Spining loader to display
+        ) : (
+          <DataTable
+            searchable="vehicleNumber"
+            columns={columnsWithDelete}
+            data={vehicles}
+          />
+        )}
       </CardContent>
       <CardFooter></CardFooter>
     </Card>

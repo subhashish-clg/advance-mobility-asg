@@ -75,10 +75,10 @@ export default function UserDetailsForms(props: UserDetailsFormsProps) {
   };
 
   // Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await props.onSumbit(values);
     setOpen(false);
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

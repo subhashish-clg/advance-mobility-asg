@@ -1,5 +1,4 @@
 "use client";
-import * as React from "react";
 
 import {
   ColumnDef,
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export interface DataTableProps<TData, TValue> {
   searchable: keyof TData;
@@ -46,15 +46,12 @@ export default function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState<PaginationState>({
+  const [rowSelection, setRowSelection] = useState({});
+  const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0, //initial page index
     pageSize: 5, //default page size
   });
@@ -192,10 +189,6 @@ export default function DataTable<TData, TValue>({
         >
           Next
         </Button>
-      </div>
-      <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of
-        {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
     </div>
   );

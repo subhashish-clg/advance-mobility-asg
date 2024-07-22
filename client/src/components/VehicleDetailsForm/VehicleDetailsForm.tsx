@@ -24,8 +24,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import axios from "axios";
-import { Driver } from "@/hooks/useDrivers";
-import { Vehicle } from "@/hooks/useVehicles";
+import { Driver, DRIVERS_ENPOINT } from "@/hooks/useDrivers";
+import { Vehicle, VEHICLES_ENDPOINT } from "@/hooks/useVehicles";
 
 const formSchema = z.object({
   vehicleNumber: z.string().min(2, {
@@ -108,9 +108,7 @@ export default function VehicleDetailsForm(props: UserDetailsFormsProps) {
     }
 
     try {
-      const response = await axios.get<Driver>(
-        `http://localhost:8000/drivers/${id}`
-      );
+      const response = await axios.get<Driver>(DRIVERS_ENPOINT + id);
 
       if (response.status === 200) {
         setOwnerSearch(response.data);
@@ -127,14 +125,14 @@ export default function VehicleDetailsForm(props: UserDetailsFormsProps) {
     }
   };
 
-  // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  // Define a submit handler.
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (ownerSearch) {
       values.owner = ownerSearch.id.toString();
       await props.onSumbit(values);
     }
     setOpen(false);
-  }
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
