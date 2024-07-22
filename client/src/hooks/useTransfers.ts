@@ -32,47 +32,29 @@ export default function useTransfers() {
   }
 
   const createTransfer = async (transfer: {
-    vehicle: string;
-    fromDriver: number;
-    toDriver: number;
+    vehicleNumber: string;
+    fromDriverID: number;
+    toDriverID: number;
   }) => {
     setError(null);
     setIsLoading(true);
 
-    console.log(transfer);
-    // const formData = new FormData();
-    // formData.append("vehicleNumber", vehicle.vehicleNumber);
-    // formData.append("vehicleType", vehicle.vehicleType);
-    // formData.append("insuranceCertifcate", vehicle.insuranceCertifcate);
-    // formData.append("pucCertificate", vehicle.pucCertificate);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/transfers",
+        transfer
+      );
 
-    // if ("owner" in vehicle) {
-    //   formData.append("owner", vehicle.owner?.toString() as string);
-    // }
+      alert(`Response status: ${response.status}`);
 
-    // console.log(formData);
-
-    // try {
-    //   const response = await axios.post(
-    //     "http://localhost:8000/vehicles",
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //     }
-    //   );
-
-    //   alert(`Response status: ${response.status}`);
-
-    //   await fetchTransfers();
-    // } catch (error) {
-    //   console.error("Error uploading data:", error);
-    //   alert("Error uploading data");
-    //   setError("Error uploading data");
-    // } finally {
-    //   setIsLoading(false);
-    // }
+      await fetchTransfers();
+    } catch (error) {
+      console.error("Error uploading data:", error);
+      alert("Error uploading data");
+      setError("Error uploading data");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const deleteVehicle = async (vehicleNumber: string) => {

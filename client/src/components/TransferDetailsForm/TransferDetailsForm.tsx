@@ -76,6 +76,9 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
       );
       if (results.data && results.data.owner) {
         setVehicleDetails(results.data);
+        setFromUser(results.data.owner);
+
+        form.clearErrors("vehicleNumber");
         form.setValue("vehicleNumber", results.data.vehicleNumber);
         form.setValue("fromDriverID", results.data.owner.name);
       }
@@ -94,7 +97,13 @@ export default function TransferDetailsForm(props: TransferDetailsFormProps) {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await props.onSumbit(values);
+    if (fromUser && toUser) {
+      await props.onSumbit({
+        ...values,
+        fromDriverID: fromUser.id.toString(),
+        toDriverID: toUser.id.toString(),
+      });
+    }
     setOpen(false);
     return form.reset();
   }

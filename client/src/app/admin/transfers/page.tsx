@@ -50,7 +50,13 @@ export default function TransfersPage() {
         </CardDescription>
         {/* User creation form */}
         <TransferDetailsForm
-          onSumbit={async (data) => {}}
+          onSumbit={async (data) => {
+            await methods.createTransfer({
+              vehicleNumber: data.vehicleNumber,
+              fromDriverID: parseInt(data.fromDriverID),
+              toDriverID: parseInt(data.fromDriverID),
+            });
+          }}
           title="Create a driver record"
           description="Enter the driver details."
         />

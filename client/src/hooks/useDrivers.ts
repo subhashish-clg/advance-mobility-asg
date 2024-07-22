@@ -10,52 +10,64 @@ export type Driver = {
   profilePhoto: string;
 };
 
+export interface UpdateDriver {
+  name: string;
+  phoneNumber: string;
+  profilePhoto: File | string;
+}
+
+const DRIVERS_ENPOINT = process.env.NEXT_PUBLIC_SERVER_URL + "drivers"; // The endpoint of the server
+
 function useDrivers() {
+  // State definition
   const [state, setState] = useState<Driver[]>([] as Driver[]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<null | string>(null);
 
-  const getAllDrivers = async () => {
+  const resetLoadingState = () => {
     setError(null);
     setIsLoading(true);
-
-    const results = await axios.get<Driver[]>("http://localhost:8000/drivers");
-
-    setIsLoading(false);
-
-    if (results.status === 200) {
-      return setState(results.data);
-    }
-    setError("Unable to fetch driver data.");
   };
 
-  const createDriver = async (driver: {
-    name: string;
-    phoneNumber: string;
-    profilePhoto: File | string;
-  }) => {
+  // All the CRUD operations on the server
+  const fetchDrivers = async () => {
+    // Reset the error state and set loading to true
     setError(null);
     setIsLoading(true);
+
+    try {
+      const results = await axios.get<Driver[]>(DRIVERS_ENPOINT);
+
+      if (results.status === 200) {
+        return setState(results.data); // Update the state to trigger a re-render
+      }
+    } catch {
+      setError("Unable to fetch driver data."); // Set error message incase of failure
+    } finally {
+      setIsLoading(false); // Disable loading
+    }
+  };
+
+  const createDriver = async (driver: UpdateDriver) => {
+    // Set the initial state
+    resetLoadingState();
+
+    // Create a formdata object to send the images
     const formData = new FormData();
     formData.append("name", driver.name);
     formData.append("phoneNumber", driver.phoneNumber);
     formData.append("profilePhoto", driver.profilePhoto);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/drivers",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(DRIVERS_ENPOINT, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      alert(`Response status: ${response.status}`);
-      await getAllDrivers();
+      if (response.status === 2001) alert(`Successfully created the driver.`);
+      await fetchDrivers(); // Update the state at the end
     } catch (error) {
-      console.error("Error uploading data:", error);
       alert("Error uploading data");
       setError("Error uploading data");
     } finally {
@@ -64,31 +76,35 @@ function useDrivers() {
   };
 
   const deleteDriver = async (id: string) => {
-    setError(null);
-    setIsLoading(true);
+    resetLoadingState();
 
-    const results = await axios.delete(`http://localhost:8000/drivers/${id}`);
+    try {
+      const results = await axios.delete(DRIVERS_ENPOINT + id);
 
-    if (results.status === 200) {
-      alert("Deleted driver successfully.");
-      return await getAllDrivers();
+      if (results.status === 200) {
+        alert("Deleted driver successfully.");
+        return await fetchDrivers();
+      }
+    } catch {
+      setError("Unable to fetch driver data.");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-    setError("Unable to fetch driver data.");
   };
 
   useEffect(() => {
-    getAllDrivers();
+    fetchDrivers(); // Fetchs all the drivers data when the component is mounted
   }, []);
 
   return {
     drivers: state,
     isLoading,
     error,
-    getAllDrivers,
-    deleteDriver,
-    createDriver,
+    methods: {
+      fetchDrivers,
+      createDriver,
+      deleteDriver,
+    },
   };
 }
 

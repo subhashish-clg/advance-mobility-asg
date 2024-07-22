@@ -1,18 +1,36 @@
+"use client";
 import { ReactElement } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function layout({ children }: { children: ReactElement }) {
+  const router = useRouter();
+
   return (
-    <Tabs defaultValue="drivers" className="container mx-auto px-5 bg-red-500 ">
+    <Tabs
+      defaultValue="drivers"
+      className="container mx-auto px-5  py-8 space-y-8"
+    >
       <TabsList>
-        <TabsTrigger value="drivers">
+        <TabsTrigger
+          value="drivers"
+          onClick={() => router.push("/admin/drivers")}
+        >
           <Link href="/admin/drivers">Drivers</Link>
         </TabsTrigger>
-        <TabsTrigger value="vehicles">
+        <TabsTrigger
+          value="vehicles"
+          onClick={() => router.push("/admin/vehicles")}
+        >
           <Link href="/admin/vehicles">Vehicles</Link>
         </TabsTrigger>
-        <TabsTrigger value="transfers">Transfers</TabsTrigger>
+        <TabsTrigger
+          value="transfers"
+          onClick={() => router.push("/admin/transfers")}
+        >
+          Transfers
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="drivers">{children}</TabsContent>
     </Tabs>
