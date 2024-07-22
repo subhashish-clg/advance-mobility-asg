@@ -36,15 +36,6 @@ export class TransfersController {
     return this.transfersService.findOne(+id);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a transfer record by `id`' })
-  update(
-    @Param('id') id: string,
-    @Body() updateTransferDto: UpdateTransferDto,
-  ) {
-    return this.transfersService.update(+id, updateTransferDto);
-  }
-
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a transfer record by `id`' })
   remove(@Param('id') id: string) {

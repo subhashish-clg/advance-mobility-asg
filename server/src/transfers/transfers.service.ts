@@ -59,15 +59,21 @@ export class TransfersService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transfer`;
+  async findOne(id: number) {
+    return await this.transferRepository.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        fromDriver: true,
+        toDriver: true,
+      },
+    });
   }
 
-  update(id: number, updateTransferDto: UpdateTransferDto) {
-    return `This action updates a #${id} transfer`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} transfer`;
+  async remove(id: number) {
+    return await this.transferRepository.delete({
+      id: id,
+    });
   }
 }

@@ -61,6 +61,7 @@ export default function UserDetailsForms(props: UserDetailsFormsProps) {
     },
   });
 
+  // Handle images changes.
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -73,11 +74,12 @@ export default function UserDetailsForms(props: UserDetailsFormsProps) {
     }
   };
 
-  // 2. Define a submit handler.
+  // Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await props.onSumbit(values);
     setOpen(false);
   }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

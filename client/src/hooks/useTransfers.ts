@@ -4,52 +4,56 @@ import axios from "axios";
 import { Vehicle } from "./useVehicles";
 
 export interface Transfer {
+  id: number;
   vehicle: Vehicle;
   fromDriver: Driver;
   toDriver: Driver;
   transferDate: string;
 }
 
+export interface CreateDriver {
+  vehicleNumber: string;
+  fromDriverID: number;
+  toDriverID: number;
+}
+
+const TRANSFERS_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_URL + "transfers/";
+
 export default function useTransfers() {
   const [state, setState] = useState<Transfer[]>([] as Transfer[]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchTransfers() {
+  const resetLoadingState = () => {
     setError(null);
     setIsLoading(true);
-    const response = await axios.get<Transfer[]>(
-      "http://localhost:8000/transfers"
-    );
+  };
 
-    setIsLoading(false);
+  const fetchTransfers = async () => {
+    resetLoadingState();
+    try {
+      const response = await axios.get<Transfer[]>(TRANSFERS_ENDPOINT);
 
-    if (response.status === 200) {
-      return setState(response.data);
+      if (response.status === 200) {
+        return setState(response.data);
+      }
+    } catch {
+      setError("Failed loading vehicles data.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    setError("Failed loading vehicles data.");
-  }
-
-  const createTransfer = async (transfer: {
-    vehicleNumber: string;
-    fromDriverID: number;
-    toDriverID: number;
-  }) => {
-    setError(null);
-    setIsLoading(true);
+  const createTransfer = async (transfer: CreateDriver) => {
+    resetLoadingState();
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/transfers",
-        transfer
-      );
+      const response = await axios.post(TRANSFERS_ENDPOINT, transfer);
 
-      alert(`Response status: ${response.status}`);
+      alert(`Created transfer record successfully.`);
 
       await fetchTransfers();
     } catch (error) {
-      console.error("Error uploading data:", error);
       alert("Error uploading data");
       setError("Error uploading data");
     } finally {
@@ -57,18 +61,18 @@ export default function useTransfers() {
     }
   };
 
-  const deleteVehicle = async (vehicleNumber: string) => {
-    console.log("http://localhost:8000/" + vehicleNumber);
-    const results = await axios.delete(
-      "http://localhost:8000/vehicles/" + vehicleNumber
-    );
+  const deleteTransfer = async (id: number) => {
+    resetLoadingState();
 
-    if (results.status === 200) {
+    try {
+      const response = await axios.delete(TRANSFERS_ENDPOINT + id.toString());
+      alert(`Deleted the transfer record.`);
       await fetchTransfers();
-      return alert("Deleted vehicle recorded successfully.");
+    } catch {
+      setError("Error uploading data");
+    } finally {
+      setIsLoading(false);
     }
-
-    return alert("Deleted vehicle recorded unsuccessfully.");
   };
 
   useEffect(() => {
@@ -82,7 +86,7 @@ export default function useTransfers() {
     methods: {
       fetchTransfers,
       createTransfer,
-      deleteVehicle,
+      deleteTransfer,
     },
   };
 }

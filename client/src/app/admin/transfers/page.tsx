@@ -11,16 +11,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
-import UserDetailsForm from "@/components/UserDetailsForm";
 import { columns } from "./columns";
 import { useMemo } from "react";
-import useDrivers from "@/hooks/useDrivers";
 import ActionContext from "@/components/ActionContext";
 import useTransfers from "@/hooks/useTransfers";
 import TransferDetailsForm from "@/components/TransferDetailsForm";
+import { LoaderCircle } from "lucide-react";
 
 export default function TransfersPage() {
-  const { transfers, methods } = useTransfers();
+  const { transfers, isLoading, methods } = useTransfers();
 
   const columnsWithDelete = useMemo(() => {
     return [
@@ -28,11 +27,19 @@ export default function TransfersPage() {
       {
         id: "actions",
         cell: ({ row }) => {
+          const transfer = row.original;
           return (
             <ActionContext>
               <>
                 <DropdownMenuItem>
-                  <Button variant="destructive">Delete Transfer Record</Button>
+                  <Button
+                    onClick={async () => {
+                      await methods.deleteTransfer(transfer.id);
+                    }}
+                    variant="destructive"
+                  >
+                    Delete Transfer Record
+                  </Button>
                 </DropdownMenuItem>
               </>
             </ActionContext>
@@ -62,11 +69,15 @@ export default function TransfersPage() {
         />
       </CardHeader>
       <CardContent>
-        <DataTable
-          searchable="vehicle"
-          columns={columnsWithDelete}
-          data={transfers}
-        />
+        {isLoading ? (
+          <LoaderCircle className="mx-auto h-12 w-12 text-gray-500 transition-transform animate-spin" />
+        ) : (
+          <DataTable
+            searchable="vehicle"
+            columns={columnsWithDelete}
+            data={transfers}
+          />
+        )}
       </CardContent>
       <CardFooter></CardFooter>
     </Card>

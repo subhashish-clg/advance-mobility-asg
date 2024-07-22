@@ -10,36 +10,45 @@ export interface Vehicle {
   owner: Driver | null;
 }
 
+export interface CreateVehicle {
+  vehicleNumber: string;
+  vehicleType: string;
+  insuranceCertifcate: File;
+  pucCertificate: File;
+  owner?: string | undefined;
+}
+
+const VEHICLES_ENDPOINT = process.env.NEXT_PUBLIC_SERVER_URL + "vehicles/";
+
 export default function useVehicles() {
   const [state, setState] = useState<Vehicle[]>([] as Vehicle[]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchVehicles() {
+  const resetLoadingState = () => {
     setError(null);
     setIsLoading(true);
-    const response = await axios.get("http://localhost:8000/vehicles");
+  };
 
-    setIsLoading(false);
+  const fetchVehicles = async () => {
+    resetLoadingState();
 
-    if (response.status === 200) {
-      return setState(response.data);
+    try {
+      const response = await axios.get(VEHICLES_ENDPOINT);
+
+      if (response.status === 200) {
+        return setState(response.data);
+      }
+    } catch {
+      setError("Error loading vehicles records.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    setError("Failed loading vehicles data.");
-  }
+  const createVehicle = async (vehicle: CreateVehicle) => {
+    resetLoadingState();
 
-  const createVehicle = async (vehicle: {
-    vehicleNumber: string;
-    vehicleType: string;
-    insuranceCertifcate: File;
-    pucCertificate: File;
-    owner?: string | undefined;
-  }) => {
-    setError(null);
-    setIsLoading(true);
-
-    console.log(vehicle);
     const formData = new FormData();
     formData.append("vehicleNumber", vehicle.vehicleNumber);
     formData.append("vehicleType", vehicle.vehicleType);
@@ -50,24 +59,17 @@ export default function useVehicles() {
       formData.append("owner", vehicle.owner?.toString() as string);
     }
 
-    console.log(formData);
-
     try {
-      const response = await axios.post(
-        "http://localhost:8000/vehicles",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(VEHICLES_ENDPOINT, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      alert(`Response status: ${response.status}`);
+      alert(`Successfully added the vehicle record.`);
 
       await fetchVehicles();
     } catch (error) {
-      console.error("Error uploading data:", error);
       alert("Error uploading data");
       setError("Error uploading data");
     } finally {
@@ -76,17 +78,18 @@ export default function useVehicles() {
   };
 
   const deleteVehicle = async (vehicleNumber: string) => {
-    console.log("http://localhost:8000/" + vehicleNumber);
-    const results = await axios.delete(
-      "http://localhost:8000/vehicles/" + vehicleNumber
-    );
+    try {
+      const results = await axios.delete(VEHICLES_ENDPOINT + vehicleNumber);
 
-    if (results.status === 200) {
-      await fetchVehicles();
-      return alert("Deleted vehicle recorded successfully.");
+      if (results.status === 200) {
+        alert("Deleted vehicle recorded successfully.");
+        await fetchVehicles();
+      }
+    } catch {
+      setError("Error creating the vehicle record.");
+    } finally {
+      setIsLoading(false);
     }
-
-    return alert("Deleted vehicle recorded unsuccessfully.");
   };
 
   useEffect(() => {
