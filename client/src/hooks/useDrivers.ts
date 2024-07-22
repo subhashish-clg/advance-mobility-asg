@@ -16,7 +16,7 @@ export interface UpdateDriver {
   profilePhoto: File | string;
 }
 
-export const DRIVERS_ENPOINT = process.env.NEXT_PUBLIC_SERVER_URL + "drivers"; // The endpoint of the server
+export const DRIVERS_ENPOINT = process.env.NEXT_PUBLIC_SERVER_URL + "drivers/"; // The endpoint of the server
 
 function useDrivers() {
   // State definition
